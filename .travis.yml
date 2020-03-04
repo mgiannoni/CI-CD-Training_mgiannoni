@@ -7,3 +7,12 @@ before_install:
 
 script:
         - ./mvnw clean install
+
+notifications:
+        email:
+                recipients:
+                - marc.giannoni@noaa.gov
+                - marcgiannoni@gmail.com 
+        on_success: always
+        on_failure: always
+
