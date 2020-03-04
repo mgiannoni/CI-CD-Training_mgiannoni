@@ -6,13 +6,18 @@ before_install:
         - chmod +x mvnw
 
 script:
-        - ./mvnw clean install
+        - ./mvnw clean install sonar:sonar -Dsonar.projectKey=mgiannoni_CI-CD-Training_mgiannoni
 
 notifications:
         email:
                 recipients:
-                - marc.giannoni@noaa.gov
-                - marcgiannoni@gmail.com 
+                -   secure: "vtrzeA7+JtYY8m06QTCGQ+8wzFfzM/YNllYpioKCEiAs3Y5/SD4mMGsFmi6MnHbhDUSi15z7J9zhGh33rlwK7Ag9Y3SzDqCIsrNukJ8sFiuivWCV0wIa7G8FuwrglgwXTm0eh4pUqiUMwSg3sf4IfeCyahKGimNDyZJ34j80eDAvdfWVAH2eAzaqK3vUBfi6CAB3PYOk+fF1/FY5NPZ23plQsu6vTXA2fs4eKRw9OAkhG6KIzzuq4lgexyCCjaeJuU2tRkvqX0TrZKBkNA1RHeYtQTRIBKrL+I8Lh8vIGsBTU4lAOGWbvG3HrEzwCRGw+MDHyRDHgSYWNXTMZQ4PKJFCauM8Ii3538AzNRLf3JxcYXk7neFDivjG/jeb4aIkQZKZhI+epVdHnMk6/WVbAMykyDsUgfQq/pIV6Mk/bmr5wGmgDRIjCnL3aR9n1t0J8M5K/q+sgUb7zhQpKPWKqJ2XaV1YxhzDFYBwV2zQbVLe9sJsY7FT0f9bF9NQLcpi7Ds4RbTPwwPuYP7amewuZrlI1VlmWTx4rhM5NQMu707YX6l5jjsMUx0WYJ3BsSJABw7VI+Ywcun/bY0MlQ5p50xGy6PNd5HMb8ImSI+cnP/GeIENs0oISl6bGhs7cyzW9LyW3dzkJ9MSobcyIqNXI4CaWuMV2mwKajugDMXZTlY="
+		-  secure: "TZpardmHbk/C3e5qikPorwvEuYD5CifOtKMbICyvO7O3EZ4AEpxTVfqxO8pyEl3C7Tfx4XBcA00sxuPWps8+ja7IVefZD9T0XokDJJbQQ+b87siq8NdOZSJc1S2M0UX9ywuFcX1xiG47JSgq+dKFAErbA2lqATfTYKm21RxDDVQNIpAppVaWB3dL+smhTJL2Wc50t5ZTaIPSHJpw3rZECW8wXrGTqHl78GWa6Xru90UETp3Pmw7f4t2fjMrckrPd24Y3GXnvc7w9RerdrHUjkEj72MRPJm77H+bqzokUhqOxjzBC11JMeXPP4AqV4KIh40vrI0oDCRdAnI8f8G94LK0XZVqIOgDmu/FU1dIbOfFQiDCn3i9Q26JrumHfbv+foh48+xkCfSLkwcvx0I6Q6DULzROmDxO1O3jkASl/7TPrQSqN2+JKI23G71MAa9SbeDUXINCmZSaz2jpbVJlSni3Gj1vymE3NFiAdXbnxD4caPt/Mryp+pnmmYQKeuTWIEwAmj5DimQjGFnXwCjJHi8VlMpj/XzY7L6p+RsnmBDf9toQXW90bDWfuJTs4cqTuTjj1P9QlZrRqrVULxB+2Rv9ftWsHxUPgrXg759FreKNmCZDGd765Ls0AABcHtFbNMYbepF0IrsVTWocx3FMBmLQoU6ECWu+G8zSpXumMLiA="
         on_success: always
         on_failure: always
 
+addons:
+	sonarcloud:
+		organization: "mgiannoni"
+		token:
+			  secure: "VlNIgyMjaCHdPIx+6t7+vsXCCYkjAOYYBiJjJypWd2DRawiAbNzvoNNixX4NXvQAhJGqrJmH/GlLLC/IEdeC8WMGfTTFGohgR4HvwAHbNQD1sdbxKmXFWlQ3c4/2+zcnSOHznOKCFgWNYjwnjmfl2kJ+Rey+x+XBN19CzPnKLh31tFighGwyCtFeBf40+ByaKtumLqU2ICzSObBjzPs2LR6Bt1jRnik9fjFU7cvLlCJfUOE8eSNX3NmTPIPQb2vTHt2+ZwBtVCsDIgaMeRRq85+tbalVChcX/jZNFpqjGCwMhFCVcD8yItMPRuLz4zHtvhO2FsGKDWpp4BSannS1i8plc8jUJvuD6v12r0DDD+pYJW31bcJ4Y8ZTBDwb5WGi/My6BgxkLsFqKKbkq79FG+NoBFf2h6jK8ufCWS9FhAdCRRir+UlnR8ceH7FTZ4P2gfj/RcGj5drw8LOtGxQL6xZclGVAuoPDAFiC6CsWzE2dGUSBS9K/lE4S13gr+HYCg0b39/tPTJuX+o6IbaF5HEVkho2tIMYU1S4g/LpaC3/Tq4ZdAGS+GrEpmG6zoxteKsilhXnzKmWVQc257aWghK3JfPoufsfpE8Ytzp9n27xc5aV4Lp5x08XLxD1NxHMFcZri1OpCiS9qTiCAhJ/TGI19ABJiTXx+IhmWamHY+aU="
