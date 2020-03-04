@@ -3,7 +3,7 @@ language: java
 jdk: openjdk11
 
 before_install:
-        - chmod +x mvwn
+        - chmod +x mvnw
 
 script:
         - ./mvnw clean install
