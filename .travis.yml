@@ -3,21 +3,42 @@ language: java
 jdk: openjdk11
 
 before_install:
-        - chmod +x mvnw
+   - openssl aes-256-cbc -K $encrypted_477022ec06e2_key -iv $encrypted_477022ec06e2_iv -in CI-CD-Training_rsa.enc -out CI-CD-Training_rsa -d
+   - chmod +x mvnw
+   - eval "$(ssh-agent -s)"
+   - chmod 600 CI-CD-Training_rsa
+   - ssh-add CI-CD-Training_rsa
+   - echo -e "Host ${DEPLOY_HOST}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+
+deploy:
+   - provider: script 
+     skip-cleanup: true
+     script: rsync -r --quiet --delete-after ${TRAVIS_BUILD_DIR}/target/cicd-example-*.jar ${DEPLOY_USER}@${DEPLOY_HOST:${DEPLOY_DIRECTORY}
+     on:
+        branch: master
+   - provider: script
+     skip-cleanup: true
+     script: sh ${TRAVIS_BUILD_DIR}/remote_deploy.sh
+     on:
+       branch: master
 
 script:
-        - ./mvnw clean install sonar:sonar -Dsonar.projectKey=mgiannoni_CI-CD-Training_mgiannoni
+   - "./mvnw clean install sonar:sonar -Dsonar.projectKey=mgiannoni_CI-CD-Training_mgiannoni"
 
 notifications:
-        email:
-                recipients:
-                -   secure: "vtrzeA7+JtYY8m06QTCGQ+8wzFfzM/YNllYpioKCEiAs3Y5/SD4mMGsFmi6MnHbhDUSi15z7J9zhGh33rlwK7Ag9Y3SzDqCIsrNukJ8sFiuivWCV0wIa7G8FuwrglgwXTm0eh4pUqiUMwSg3sf4IfeCyahKGimNDyZJ34j80eDAvdfWVAH2eAzaqK3vUBfi6CAB3PYOk+fF1/FY5NPZ23plQsu6vTXA2fs4eKRw9OAkhG6KIzzuq4lgexyCCjaeJuU2tRkvqX0TrZKBkNA1RHeYtQTRIBKrL+I8Lh8vIGsBTU4lAOGWbvG3HrEzwCRGw+MDHyRDHgSYWNXTMZQ4PKJFCauM8Ii3538AzNRLf3JxcYXk7neFDivjG/jeb4aIkQZKZhI+epVdHnMk6/WVbAMykyDsUgfQq/pIV6Mk/bmr5wGmgDRIjCnL3aR9n1t0J8M5K/q+sgUb7zhQpKPWKqJ2XaV1YxhzDFYBwV2zQbVLe9sJsY7FT0f9bF9NQLcpi7Ds4RbTPwwPuYP7amewuZrlI1VlmWTx4rhM5NQMu707YX6l5jjsMUx0WYJ3BsSJABw7VI+Ywcun/bY0MlQ5p50xGy6PNd5HMb8ImSI+cnP/GeIENs0oISl6bGhs7cyzW9LyW3dzkJ9MSobcyIqNXI4CaWuMV2mwKajugDMXZTlY="
-                -  secure: "TZpardmHbk/C3e5qikPorwvEuYD5CifOtKMbICyvO7O3EZ4AEpxTVfqxO8pyEl3C7Tfx4XBcA00sxuPWps8+ja7IVefZD9T0XokDJJbQQ+b87siq8NdOZSJc1S2M0UX9ywuFcX1xiG47JSgq+dKFAErbA2lqATfTYKm21RxDDVQNIpAppVaWB3dL+smhTJL2Wc50t5ZTaIPSHJpw3rZECW8wXrGTqHl78GWa6Xru90UETp3Pmw7f4t2fjMrckrPd24Y3GXnvc7w9RerdrHUjkEj72MRPJm77H+bqzokUhqOxjzBC11JMeXPP4AqV4KIh40vrI0oDCRdAnI8f8G94LK0XZVqIOgDmu/FU1dIbOfFQiDCn3i9Q26JrumHfbv+foh48+xkCfSLkwcvx0I6Q6DULzROmDxO1O3jkASl/7TPrQSqN2+JKI23G71MAa9SbeDUXINCmZSaz2jpbVJlSni3Gj1vymE3NFiAdXbnxD4caPt/Mryp+pnmmYQKeuTWIEwAmj5DimQjGFnXwCjJHi8VlMpj/XzY7L6p+RsnmBDf9toQXW90bDWfuJTs4cqTuTjj1P9QlZrRqrVULxB+2Rv9ftWsHxUPgrXg759FreKNmCZDGd765Ls0AABcHtFbNMYbepF0IrsVTWocx3FMBmLQoU6ECWu+G8zSpXumMLiA="
-        on_success: always
-        on_failure: always
-
+  email:
+    recipients:
+    - secure: vtrzeA7+JtYY8m06QTCGQ+8wzFfzM/YNllYpioKCEiAs3Y5/SD4mMGsFmi6MnHbhDUSi15z7J9zhGh33rlwK7Ag9Y3SzDqCIsrNukJ8sFiuivWCV0wIa7G8FuwrglgwXTm0eh4pUqiUMwSg3sf4IfeCyahKGimNDyZJ34j80eDAvdfWVAH2eAzaqK3vUBfi6CAB3PYOk+fF1/FY5NPZ23plQsu6vTXA2fs4eKRw9OAkhG6KIzzuq4lgexyCCjaeJuU2tRkvqX0TrZKBkNA1RHeYtQTRIBKrL+I8Lh8vIGsBTU4lAOGWbvG3HrEzwCRGw+MDHyRDHgSYWNXTMZQ4PKJFCauM8Ii3538AzNRLf3JxcYXk7neFDivjG/jeb4aIkQZKZhI+epVdHnMk6/WVbAMykyDsUgfQq/pIV6Mk/bmr5wGmgDRIjCnL3aR9n1t0J8M5K/q+sgUb7zhQpKPWKqJ2XaV1YxhzDFYBwV2zQbVLe9sJsY7FT0f9bF9NQLcpi7Ds4RbTPwwPuYP7amewuZrlI1VlmWTx4rhM5NQMu707YX6l5jjsMUx0WYJ3BsSJABw7VI+Ywcun/bY0MlQ5p50xGy6PNd5HMb8ImSI+cnP/GeIENs0oISl6bGhs7cyzW9LyW3dzkJ9MSobcyIqNXI4CaWuMV2mwKajugDMXZTlY=
+    - secure: TZpardmHbk/C3e5qikPorwvEuYD5CifOtKMbICyvO7O3EZ4AEpxTVfqxO8pyEl3C7Tfx4XBcA00sxuPWps8+ja7IVefZD9T0XokDJJbQQ+b87siq8NdOZSJc1S2M0UX9ywuFcX1xiG47JSgq+dKFAErbA2lqATfTYKm21RxDDVQNIpAppVaWB3dL+smhTJL2Wc50t5ZTaIPSHJpw3rZECW8wXrGTqHl78GWa6Xru90UETp3Pmw7f4t2fjMrckrPd24Y3GXnvc7w9RerdrHUjkEj72MRPJm77H+bqzokUhqOxjzBC11JMeXPP4AqV4KIh40vrI0oDCRdAnI8f8G94LK0XZVqIOgDmu/FU1dIbOfFQiDCn3i9Q26JrumHfbv+foh48+xkCfSLkwcvx0I6Q6DULzROmDxO1O3jkASl/7TPrQSqN2+JKI23G71MAa9SbeDUXINCmZSaz2jpbVJlSni3Gj1vymE3NFiAdXbnxD4caPt/Mryp+pnmmYQKeuTWIEwAmj5DimQjGFnXwCjJHi8VlMpj/XzY7L6p+RsnmBDf9toQXW90bDWfuJTs4cqTuTjj1P9QlZrRqrVULxB+2Rv9ftWsHxUPgrXg759FreKNmCZDGd765Ls0AABcHtFbNMYbepF0IrsVTWocx3FMBmLQoU6ECWu+G8zSpXumMLiA=
+  on_success: always
+  on_failure: always
 addons:
-        sonarcloud:
-                organization: "mgiannoni"
-                token:
-                      secure: "VlNIgyMjaCHdPIx+6t7+vsXCCYkjAOYYBiJjJypWd2DRawiAbNzvoNNixX4NXvQAhJGqrJmH/GlLLC/IEdeC8WMGfTTFGohgR4HvwAHbNQD1sdbxKmXFWlQ3c4/2+zcnSOHznOKCFgWNYjwnjmfl2kJ+Rey+x+XBN19CzPnKLh31tFighGwyCtFeBf40+ByaKtumLqU2ICzSObBjzPs2LR6Bt1jRnik9fjFU7cvLlCJfUOE8eSNX3NmTPIPQb2vTHt2+ZwBtVCsDIgaMeRRq85+tbalVChcX/jZNFpqjGCwMhFCVcD8yItMPRuLz4zHtvhO2FsGKDWpp4BSannS1i8plc8jUJvuD6v12r0DDD+pYJW31bcJ4Y8ZTBDwb5WGi/My6BgxkLsFqKKbkq79FG+NoBFf2h6jK8ufCWS9FhAdCRRir+UlnR8ceH7FTZ4P2gfj/RcGj5drw8LOtGxQL6xZclGVAuoPDAFiC6CsWzE2dGUSBS9K/lE4S13gr+HYCg0b39/tPTJuX+o6IbaF5HEVkho2tIMYU1S4g/LpaC3/Tq4ZdAGS+GrEpmG6zoxteKsilhXnzKmWVQc257aWghK3JfPoufsfpE8Ytzp9n27xc5aV4Lp5x08XLxD1NxHMFcZri1OpCiS9qTiCAhJ/TGI19ABJiTXx+IhmWamHY+aU="
+  sonarcloud:
+    organization: mgiannoni
+    token:
+      secure: VlNIgyMjaCHdPIx+6t7+vsXCCYkjAOYYBiJjJypWd2DRawiAbNzvoNNixX4NXvQAhJGqrJmH/GlLLC/IEdeC8WMGfTTFGohgR4HvwAHbNQD1sdbxKmXFWlQ3c4/2+zcnSOHznOKCFgWNYjwnjmfl2kJ+Rey+x+XBN19CzPnKLh31tFighGwyCtFeBf40+ByaKtumLqU2ICzSObBjzPs2LR6Bt1jRnik9fjFU7cvLlCJfUOE8eSNX3NmTPIPQb2vTHt2+ZwBtVCsDIgaMeRRq85+tbalVChcX/jZNFpqjGCwMhFCVcD8yItMPRuLz4zHtvhO2FsGKDWpp4BSannS1i8plc8jUJvuD6v12r0DDD+pYJW31bcJ4Y8ZTBDwb5WGi/My6BgxkLsFqKKbkq79FG+NoBFf2h6jK8ufCWS9FhAdCRRir+UlnR8ceH7FTZ4P2gfj/RcGj5drw8LOtGxQL6xZclGVAuoPDAFiC6CsWzE2dGUSBS9K/lE4S13gr+HYCg0b39/tPTJuX+o6IbaF5HEVkho2tIMYU1S4g/LpaC3/Tq4ZdAGS+GrEpmG6zoxteKsilhXnzKmWVQc257aWghK3JfPoufsfpE8Ytzp9n27xc5aV4Lp5x08XLxD1NxHMFcZri1OpCiS9qTiCAhJ/TGI19ABJiTXx+IhmWamHY+aU=
+env:
+  global:
+  - secure: czdPnyL7Hx8rRBuHdqcY1Jcsu0aww2TIDaZKmioH5XjLWhMSuHqXOARbJJPmzZg4SyQ7HtR96FkBDY1FOhBeXSZLLZAt7vQzme/BnsURT0UXKSSXxx9F0E5X8q7aZumM/FXX5AUUevC20tOO/+Wpmx1NPBs/9yGGIEnbeNEXOwlRw//C/NO88aS3+RibXYcTEhn+05JehCYAnEudJOX2F9PEFdh5uXqjozGP9pqjIUd4No95lxiODMnLTVCCy6sGoJeo4tBnaQprcVXkbAyG1b6FwT7TWJXMZiwQ/ItCfOL9zvhw7+22wRZ0fT2HVF82VkiV9yxUIrYVgMKu11E5N9TDC+Ly9gKPYMixvskZEGAhHa5uuU3jDU4BqWPWmE52OvteaSAziUkjx9HktQYdAqefZxPZsZeX+t8TsUrZcXM5loqATStCYVTV9wCTjv5itJtlR58a5DmQ1sSuCgzLxgRoHAWYfw2aP7CnM4P08m1yuLOPpCU95yWktjV7mAjKs45gbDWom/VfM6i7s/HcXdAZvlzxOkqO9awGUfXnCsYmsTSTzs17VOAWJD42oDLGZVce6tbviWbBWjs9vbiwNnUA5X8yOogpq12MswPOiRhq472JSToB+qLaL/WVgFbzpAT/CsBxMq8FIxAeMPcuooGNowOiSEbPo2HoXmrdHfc=
+  - secure: NbjRY0IcTbercTkj1lirr5AOyOj2Xfuk88kXTR1y1BP1AUsZLNig7Ktn/+7rn1LfGCHdpRy6YiaVo+LSBsz/rEV/dPav1PzS72t8eriWjAN4jtpJipcwcLxweFQ8bSju8xbKgsaw8u09J8m9EZ/m2Ip4GTO0YCPAL0jug5IKJvT8j8TQse6JQmOYwFMLrxvn2ch4Fk+xhOwayG1mj9Ywz2ZpV9l32LNegrY3kpps0+tvjF9o4dC00gAi5ui2TJoQdmx4VYD/o5RCjcU97chFHGEYsdHweU0ERdwPBJH/dmNsquOmvpxBE2Km1b+NRRDugm690154jv1Fz1gmvnv+/8eDFeYe9ZbK/VHzh0N0PwOuYRAi6/VWoQOrvMIMJws5r2caCghjG8VDCbRyP/Sr4Q0Ut4C4b+TgMUoCyseYn8BYb/0NageCyLorxtwOAbz+Bh+wry85yjP/GjiPr1K2uDIsDveECrLwUlUEDSmapSUVpAjC9JEPyzXt4pnUNu2inGmGqVRtMiTuQbTiPCYMQQ0L719NwjIasAVdHbA6axBU/2RIWOP3DM1bIKg069/oqLcH1yGfbfPSiwpiLbJ53S99SzcL25XrvNON17ZEQrPs9O+rZkMqZy5tCl1qNLyAecxsprxLyvtmYcLaq25ThQV6xI4mptHYSZ/pnYccehQ=
+  - secure: nc7PYj8IARgHRmKBj1LqhL874QA2oScyCqhqkSTd2XJ1vmcnaKhFhha/105v7qp8mRSvD46lDqqHzGLghCUQfCMg7SA3PwNr6G7i+p7H25r3T412R8jwT7OIJvLjqpqqhVSd+Wzm0NKlU4fUzPKEr6h5Krm2EBLMKt9cIg/4TIsuMtmCBOS0Po5byG+SCLpR49b3NlNayPkA0cvp3TH7NnxBtHZWmSvX/XkWtBP/njYXVXW3BFrDiC+p8nUjCPT5toMOP9g9WrBzB4n8qtqRmYj6SJaMupCpHa0tnuxe7SNQ2kP9I+gCf5DfbdYD0nW3dvD/vmH4CEaU22XRBsHQD42tV2uKc7J6hppBRu+Xi/SNHLu7mxloFJzSv1Qip5rAxTlDgs+oRc7t5soJdEhJ9/HwpcMbkrQpf3IV2j/qgaavObNPwLkmlnhJ7hLZRMfH6eI8Zk6kQQs97QKGW4ixi1chTkKuXg46QNw5MMnBFyPfeM5r7LjAFzaOE3noitgBTCE/ZnViaD8DQShXBAbk29fytTq/8nMphzcfIIQHNCrhSkpf4R4ekjevAACd1bD7amGPV09qVkMU0Ct/TZUPQqYpaeplYdtPxXqqaaxwRZZmbjQAqNWkwhBKawd33ZGBVG3A7+IVdkq/Odg8owIpehmfePiGoS2oRa5ZOoz11dU=
