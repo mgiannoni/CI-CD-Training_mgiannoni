@@ -3,7 +3,7 @@ language: java
 jdk: openjdk11
 
 before_install:
-   - openssl aes-256-cbc -K $encrypted_477022ec06e2_key -iv $encrypted_477022ec06e2_iv -in CI-CD-Training_rsa.enc -out CI-CD-Training_rsa -d
+   - openssl -K $encrypted_477022ec06e2_key -iv $encrypted_477022ec06e2_iv -in CI-CD-Training_rsa.enc -out CI-CD-Training_rsa -d
    - chmod +x mvnw
    - eval "$(ssh-agent -s)"
    - chmod 600 CI-CD-Training_rsa
